@@ -2,14 +2,14 @@
 const CONFIG = {
   backendUrl: 'http://localhost:5000/command',
   openRouterUrl: 'https://openrouter.ai/api/v1/chat/completions',
-  openRouterKey: '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',
+  openRouterKey: (typeof PRIVATE_CONFIG !== 'undefined') ? PRIVATE_CONFIG.openRouterKey : '',
   openRouterModel: 'openai/gpt-3.5-turbo',
-  useAI: true,
+  get useAI() { return this.openRouterKey.length > 10; }, // auto-enables when key is set
   barCount: 28,
   fftSize: 256,
   get maxBarHeight() { return Math.round(window.innerHeight * 0.22); },
 };
-
+// the API key is being placed above to ake a new one, simply repce the bove with your own API key to make sure this works
 // ─── Identity ─────────────────────────────────────────────────────────────────
 const IDENTITY = {
   name: 'WazBot',
@@ -50,6 +50,51 @@ function initBars() {
     bar.id = `bar-${i}`;
     barsEl.appendChild(bar);
   }
+}
+
+// ─── Init wave (speaking indicator) ──────────────────────────────────────────
+const WAVE_COUNT = 28;
+function initWave() {
+  const waveEl = document.getElementById('wave');
+  waveEl.innerHTML = '';
+  for (let i = 0; i < WAVE_COUNT; i++) {
+    const b = document.createElement('div');
+    b.className = 'wave-bar';
+    b.id = `wb-${i}`;
+    waveEl.appendChild(b);
+  }
+}
+
+let waveAnimFrame = null;
+
+function startWave() {
+  document.getElementById('waveWrapper').classList.add('active');
+  const bars = Array.from(document.querySelectorAll('.wave-bar'));
+  let t = 0;
+  function tick() {
+    waveAnimFrame = requestAnimationFrame(tick);
+    t += 0.08;
+    bars.forEach((b, i) => {
+      // sine wave with offset per bar + random jitter for natural feel
+      const phase  = (i / WAVE_COUNT) * Math.PI * 2;
+      const height = 4 + Math.abs(Math.sin(t + phase) * 24 + Math.sin(t * 1.7 + phase * 0.5) * 8);
+      const hue    = 270 + (i / WAVE_COUNT) * 50;
+      b.style.height     = height + 'px';
+      b.style.background = `hsl(${hue}, 100%, ${45 + (height / 32) * 20}%)`;
+      b.style.boxShadow  = `0 0 ${4 + height / 6}px hsl(${hue}, 100%, 60%)`;
+    });
+  }
+  tick();
+}
+
+function stopWave() {
+  if (waveAnimFrame) cancelAnimationFrame(waveAnimFrame);
+  waveAnimFrame = null;
+  document.getElementById('waveWrapper').classList.remove('active');
+  document.querySelectorAll('.wave-bar').forEach(b => {
+    b.style.height = '4px';
+    b.style.boxShadow = 'none';
+  });
 }
 
 // ─── Status ───────────────────────────────────────────────────────────────────
@@ -115,43 +160,61 @@ function stopVisualizer() {
 
 // ─── Text-to-Speech ───────────────────────────────────────────────────────────
 function speak(text, bubbleEl) {
-  // Cancel any ongoing speech
   window.speechSynthesis.cancel();
 
-  const utter = new SpeechSynthesisUtterance(text);
-  currentUtterance = utter;
+  // Small delay so cancel() fully clears before new utterance
+  setTimeout(() => {
+    const utter = new SpeechSynthesisUtterance(text);
+    currentUtterance = utter;
 
-  // Pick a good voice — prefer a deep/clear English one
-  const voices = window.speechSynthesis.getVoices();
-  const preferred = voices.find(v =>
-    v.name.includes('Google UK English Male') ||
-    v.name.includes('Daniel') ||
-    v.name.includes('Alex') ||
-    (v.lang === 'en-GB' && v.name.toLowerCase().includes('male'))
-  ) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+    const voices = window.speechSynthesis.getVoices();
 
-  if (preferred) utter.voice = preferred;
-  utter.rate  = 0.95;
-  utter.pitch = 0.85;
-  utter.volume = 1;
+    // Priority order: natural-sounding deep English voices
+    const preferred = voices.find(v => v.name === 'Google UK English Male')
+      || voices.find(v => v.name === 'Daniel')           // macOS deep male
+      || voices.find(v => v.name === 'Arthur')           // macOS UK male
+      || voices.find(v => v.name === 'Alex')             // macOS US male
+      || voices.find(v => v.name.includes('Male') && v.lang.startsWith('en'))
+      || voices.find(v => v.lang === 'en-GB')
+      || voices.find(v => v.lang === 'en-US')
+      || voices[0];
 
-  isSpeaking = true;
-  setStatus('active', 'SPEAKING');
-  if (bubbleEl) bubbleEl.classList.add('speaking');
+    if (preferred) utter.voice = preferred;
 
-  utter.onend = () => {
-    isSpeaking = false;
-    if (bubbleEl) bubbleEl.classList.remove('speaking');
-    if (isListening) setStatus('active', 'LISTENING');
-    else setStatus('', 'STANDBY');
-  };
+    // Natural-sounding settings
+    utter.rate   = 0.88;   // slightly slower = more deliberate
+    utter.pitch  = 0.80;   // lower pitch = deeper voice
+    utter.volume = 1.0;
 
-  utter.onerror = () => {
-    isSpeaking = false;
-    if (bubbleEl) bubbleEl.classList.remove('speaking');
-  };
+    isSpeaking = true;
+    setStatus('active', 'SPEAKING');
+    if (bubbleEl) bubbleEl.classList.add('speaking');
 
-  window.speechSynthesis.speak(utter);
+    utter.onstart = () => {
+      document.body.classList.add('speaking');
+      startWave();
+    };
+
+    utter.onend = () => {
+      isSpeaking = false;
+      document.body.classList.remove('speaking');
+      stopWave();
+      if (bubbleEl) bubbleEl.classList.remove('speaking');
+      if (isListening) setStatus('active', 'LISTENING');
+      else setStatus('', 'STANDBY');
+    };
+
+    utter.onerror = (e) => {
+      if (e.error === 'interrupted') return;
+      isSpeaking = false;
+      document.body.classList.remove('speaking');
+      stopWave();
+      if (bubbleEl) bubbleEl.classList.remove('speaking');
+      console.warn('TTS error:', e.error);
+    };
+
+    window.speechSynthesis.speak(utter);
+  }, 80);
 }
 
 // ─── Speech Recognition ───────────────────────────────────────────────────────
@@ -289,14 +352,22 @@ async function queryAI(userMsg) {
       },
       body: JSON.stringify({ model: CONFIG.openRouterModel, messages: chatHistory }),
     });
-    const data  = await res.json();
-    const reply = data.choices?.[0]?.message?.content || 'No response received.';
+    const data = await res.json();
+
+    // Handle auth / quota errors gracefully
+    if (data.error) {
+      console.warn('OpenRouter error:', data.error.message);
+      chatHistory.pop(); // remove the user msg we just pushed
+      return localResponse(userMsg);
+    }
+
+    const reply = data.choices?.[0]?.message?.content || localResponse(userMsg);
     chatHistory.push({ role: 'assistant', content: reply });
     return reply;
   } catch (e) {
-    const errMsg = `API error: ${e.message}`;
-    console.error(errMsg);
-    return errMsg;
+    console.error('API fetch error:', e.message);
+    chatHistory.pop();
+    return localResponse(userMsg);
   }
 }
 
@@ -394,6 +465,7 @@ async function sendText() {
 window.speechSynthesis.onvoiceschanged = () => {};
 
 initBars();
+initWave();
 
 // Greet on load
 setTimeout(() => {

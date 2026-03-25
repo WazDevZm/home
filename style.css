@@ -359,6 +359,46 @@ body.listening .bar {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Speaking waveform */
+.wave-wrapper {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.wave-wrapper.active { display: flex; }
+
+.wave-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  color: var(--purple);
+  opacity: 0.7;
+}
+
+.wave {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 32px;
+}
+
+.wave-bar {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--purple);
+  box-shadow: 0 0 6px var(--purple-glow);
+  animation: wavePulse 0ms ease-in-out infinite alternate;
+  height: 4px;
+}
+
+@keyframes wavePulse {
+  from { height: 3px;  opacity: 0.4; }
+  to   { height: 28px; opacity: 1;   }
+}
+
 /* Text input row */
 .input-row {
   display: flex;
