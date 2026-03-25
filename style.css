@@ -42,10 +42,10 @@ body {
 .container {
   max-width: 860px;
   margin: 0 auto;
-  padding: 1rem 1.5rem;
+  padding: 0.5rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.5rem;
 }
 
 /* Header */
@@ -54,7 +54,7 @@ header {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border);
-  padding-bottom: 0.6rem;
+  padding-bottom: 0.4rem;
 }
 
 .logo {
@@ -72,7 +72,7 @@ header {
 
 .logo-text {
   font-family: 'Orbitron', sans-serif;
-  font-size: 1.4rem;
+  font-size: 1.1rem;
   font-weight: 900;
   letter-spacing: 0.3em;
   color: var(--purple);
@@ -107,14 +107,15 @@ header {
   box-shadow: 0 0 10px var(--red);
 }
 
-/* Visualizer */
+/* Visualizer — in document flow, centered */
 .visualizer-wrapper {
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 340px;
-  margin: 0;
+  height: 52vmin;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .ring {
@@ -124,13 +125,13 @@ header {
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-.ring-outer { width: 320px; height: 320px; }
-.ring-mid   { width: 265px; height: 265px; border-color: rgba(155,48,255,0.15); }
-.ring-inner { width: 210px; height: 210px; border-color: rgba(155,48,255,0.1); }
+.ring-outer { width: 50vmin; height: 50vmin; }
+.ring-mid   { width: 41vmin; height: 41vmin; border-color: rgba(155,48,255,0.15); }
+.ring-inner { width: 32vmin; height: 32vmin; border-color: rgba(155,48,255,0.1); }
 
 body.listening .ring-outer {
   border-color: var(--purple);
-  box-shadow: 0 0 50px var(--purple-glow), inset 0 0 50px var(--purple-glow);
+  box-shadow: 0 0 60px var(--purple-glow), inset 0 0 60px var(--purple-glow);
   animation: spin 8s linear infinite;
 }
 body.listening .ring-mid {
@@ -144,33 +145,34 @@ body.listening .ring-inner {
 
 .visualizer {
   position: relative;
-  z-index: 2;
-  width: 190px;
-  height: 190px;
+  z-index: 1;
+  width: 28vmin;
+  height: 28vmin;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(155,48,255,0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(155,48,255,0.12) 0%, transparent 70%);
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: all;
   cursor: pointer;
 }
 
 body.listening .visualizer {
-  box-shadow: 0 0 60px var(--purple-glow);
+  box-shadow: 0 0 80px var(--purple-glow);
 }
 
 .bars {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  width: 155px;
-  height: 150px;
+  gap: 3px;
+  width: 22vmin;
+  height: 18vmin;
 }
 
 .bar {
   flex: 1;
-  max-width: 8px;
+  max-width: 10px;
   border-radius: 3px;
   background: var(--purple-dim);
   height: 4px;
@@ -188,23 +190,23 @@ body.listening .bar {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 1rem 1.2rem;
+  padding: 0.5rem 1rem;
   position: relative;
 }
 
 .transcript-label, .log-label, .response-label {
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   letter-spacing: 0.2em;
   color: var(--purple);
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.3rem;
   opacity: 0.8;
 }
 
 .transcript {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   color: var(--text);
-  min-height: 1.5rem;
+  min-height: 1.2rem;
   letter-spacing: 0.05em;
 }
 
@@ -216,21 +218,21 @@ body.listening .bar {
 /* Controls */
 .controls {
   display: flex;
-  gap: 1rem;
+  gap: 0.8rem;
   justify-content: center;
 }
 
 .btn-mic {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.8rem 2.5rem;
+  gap: 0.5rem;
+  padding: 0.55rem 2rem;
   background: transparent;
   border: 2px solid var(--purple);
   border-radius: 4px;
   color: var(--purple);
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   cursor: pointer;
@@ -253,13 +255,13 @@ body.listening .bar {
 }
 
 .btn-clear {
-  padding: 0.8rem 1.5rem;
+  padding: 0.55rem 1.2rem;
   background: transparent;
   border: 1px solid var(--border);
   border-radius: 4px;
   color: var(--text-dim);
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   letter-spacing: 0.15em;
   cursor: pointer;
   transition: all 0.2s;
@@ -276,15 +278,15 @@ body.listening .bar {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 1rem 1.2rem;
+  padding: 0.5rem 1rem;
 }
 
 .log {
-  max-height: 280px;
+  max-height: 130px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.5rem;
   scrollbar-width: thin;
   scrollbar-color: var(--purple-dim) transparent;
 }
@@ -311,10 +313,10 @@ body.listening .bar {
 .bubble.jarvis .bubble-label { color: var(--purple); }
 
 .bubble-text {
-  padding: 0.6rem 1rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 12px;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.82rem;
+  line-height: 1.4;
 }
 
 .bubble.user .bubble-text {
@@ -357,14 +359,60 @@ body.listening .bar {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Text input row */
+.input-row {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.text-input {
+  flex: 1;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.55rem 1rem;
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.text-input::placeholder { color: var(--text-dim); }
+
+.text-input:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 12px var(--purple-glow);
+}
+
+.btn-send {
+  padding: 0.55rem 1.4rem;
+  background: transparent;
+  border: 2px solid var(--purple);
+  border-radius: 4px;
+  color: var(--purple);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-send:hover {
+  background: rgba(155,48,255,0.15);
+  box-shadow: 0 0 15px var(--purple-glow);
+}
+
 /* Footer */
 .footer {
   text-align: center;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   color: var(--text-dim);
-  letter-spacing: 0.12em;
-  padding: 1.2rem 0 1.5rem;
-  opacity: 0.45;
+  letter-spacing: 0.1em;
+  padding: 0.4rem 0 0.4rem;
+  line-height: 1.2;
+  opacity: 0.4;
   font-family: 'Share Tech Mono', monospace;
 }
 

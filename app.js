@@ -7,7 +7,7 @@ const CONFIG = {
   useAI: true,
   barCount: 28,
   fftSize: 256,
-  maxBarHeight: 140,
+  get maxBarHeight() { return Math.round(window.innerHeight * 0.22); },
 };
 
 // ─── Identity ─────────────────────────────────────────────────────────────────
@@ -364,6 +364,29 @@ function clearLog() {
   chatHistory = [{ role: 'system', content: IDENTITY.systemPrompt }];
   transcript.textContent = 'Awaiting voice command...';
   transcript.className = 'transcript';
+}
+
+// ─── Text input handler ───────────────────────────────────────────────────────
+async function sendText() {
+  const input = document.getElementById('textInput');
+  const cmd = input.value.trim();
+  if (!cmd) return;
+  input.value = '';
+  // Route through same handler — voice reply only, no WazBot text bubble
+  addBubble('user', cmd);
+  setStatus('active', 'PROCESSING');
+  sendToBackend(cmd);
+
+  let reply;
+  if (CONFIG.useAI && CONFIG.openRouterKey) {
+    reply = await queryAI(cmd);
+  } else {
+    reply = localResponse(cmd);
+  }
+
+  // Speak only — no bubble for WazBot response
+  speak(reply, null);
+  setStatus('active', 'SPEAKING');
 }
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────
