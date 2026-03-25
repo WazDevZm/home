@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JARVIS — AI Interface</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="scanline"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="logo">
+        <span class="logo-icon">⬡</span>
+        <span class="logo-text">WAZBot</span>
+      </div>
+      <div class="status-bar">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">STANDBY</span>
+      </div>
+    </header>
+
+    <!-- Visualizer -->
+    <div class="visualizer-wrapper">
+      <div class="ring ring-outer"></div>
+      <div class="ring ring-mid"></div>
+      <div class="ring ring-inner"></div>
+      <div class="visualizer" id="visualizer">
+        <div class="bars" id="bars"></div>
+      </div>
+    </div>
+
+    <!-- Transcript -->
+    <div class="transcript-box">
+      <div class="transcript-label">VOICE INPUT</div>
+      <div class="transcript" id="transcript">Awaiting voice command...</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="btn-mic" id="micBtn" onclick="toggleListening()">
+        <span class="mic-icon">🎤</span>
+        <span id="micLabel">ACTIVATE</span>
+      </button>
+      <button class="btn-clear" onclick="clearLog()">CLEAR</button>
+    </div>
+
+    <!-- Chat -->
+    <div class="log-wrapper">
+      <div class="log-label">CONVERSATION</div>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+
+  <footer class="footer">Built by Wazingwa Mugala — Copperbelt University, Zambia</footer>
+  <footer class="footer">"Africa has potential to build it's own AI systems😊"</footer>
+  <script src="app.js"></script>
+</body>
+</html>
